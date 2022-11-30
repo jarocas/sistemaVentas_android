@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity {
     //se genera un objeto para conectarse a la base de datos de firebase - firebase
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    String idAutomatic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
                                     if(!task.getResult().isEmpty()){
                                         //la instancia tiene información del documento
                                         for(QueryDocumentSnapshot document: task.getResult()){
+                                            idAutomatic = document.getId();
                                             //mostrar la informacion en cada uno de los objetos referenciados
                                             fullname.setText(document.getString("fullname"));
                                             email.setText(document.getString("email"));
@@ -74,6 +77,33 @@ public class MainActivity extends AppCompatActivity {
                                     }
 
                                 }
+                            }
+                        });
+            }
+        });
+
+        btnedit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Map<String, Object> mseller = new HashMap<>();
+                mseller.put("idseller", idseller.getText().toString());
+                mseller.put("fullname", fullname.getText().toString());
+                mseller.put("email", email.getText().toString());
+                mseller.put("password", password.getText().toString());
+                mseller.put("totalcomision", 0);
+
+                db.collection("seller").document(idAutomatic)
+                        .set(mseller)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(getApplicationContext(),"Vendedor actualizado correctamente", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getApplicationContext(), "Error al guardar los datos del vendedor...", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
